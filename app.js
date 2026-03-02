@@ -4,7 +4,9 @@ import routers from './src/router/routers.js';
 import dotenv from 'dotenv';
 dotenv.config();
 
-import query from './src/database/db.js';
+import { query, queryFile } from './src/database/db.js';
+
+queryFile('./src/database/querys/create-tables.sql');
 
 const app = express();
 
