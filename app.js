@@ -1,10 +1,18 @@
-const express = require("express")
-const app = express()
+import express from 'express';
+import routers from './src/router/routers.js';
 
+import dotenv from 'dotenv';
+dotenv.config();
+
+import query from './src/database/db.js';
+
+const app = express();
 
 app.get('/', (req, res)=>{
-    return res.send("ok")
+    return res.send("home!");
 })
 
-app.listen(8080)
+app.use('/', routers);
+
+app.listen(8080);
 
