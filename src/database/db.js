@@ -17,7 +17,9 @@ const query = async (q, values=null)=>{
 
         return { data, sucess: true };
     }catch(err){
-        return { err, sucecss: false }; 
+        const data = { err, sucess: false };
+        console.log("ERR FROM SIMPLE QUERYS\n", data);
+        return data; 
     }
 }
 
@@ -28,7 +30,8 @@ const queryFile = async (a_path, values=null)=>{
 
         return data;
     }catch(err){
-        console.log(err);
+        console.log("ERR FROM FILE QUERYS\n", err);
+        return err;
     }
 }
 

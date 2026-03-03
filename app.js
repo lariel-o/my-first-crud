@@ -14,6 +14,12 @@ app.get('/', (req, res)=>{
     return res.send("home!");
 })
 
+
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+
+
+// routers
 app.use('/', routers);
 
 app.listen(8080);
