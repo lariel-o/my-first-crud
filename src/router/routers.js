@@ -62,17 +62,11 @@ router.post('/auth/login', async (req, res)=>{
     return res.send(token);
 });
 
-router.get('/auth/test', (req, res)=>{
-    const token = req.signedCookies.token;
-
-    const decoded = jwt.verify(token, process.env.PASSWORD_SECRET);
-    console.log(decoded);
-
-    return res.send( req.signedCookies );
-})
-
 router.delete('/auth/delete', async (req, res)=>{
     const { nickname } = req.body;
+
+    if(!nickcname)
+        return res.send("missing field");
 
     const token = req.signedCookies.token;
     if(!token)
@@ -89,6 +83,28 @@ router.delete('/auth/delete', async (req, res)=>{
 
     return res.send("User deleted");
     
+});
+
+router.put('/auth/update', async (req, res)=>{
+    const { nickname, complete_name: completeName } = req.body;
+    
+    if(!nickname || !completeName)
+        return res.send("Missing fields");
+
+    const token = req.signedCookies.token;
+    if(!token)
+        return res.send("Not allowed");
+
+    const decoded = jwt.verify(token, process.env.PASSWORD_SECRET);
+    if(decoded.type != "everything")
+        return res.send("invalid token")
+
+    const result = await query('UPDATE users SET complete_name=$1 WHERE nickname=$2', [completeName, nickname]);
+
+    if(result.sucess == false)
+        return res.send("Error");
+
+    return res.send("Name updated");
 });
 
 export default router;
