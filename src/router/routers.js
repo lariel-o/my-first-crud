@@ -12,9 +12,8 @@ router.post('/auth/register', async (req, res)=>{
     const id = randomUUID();
 
     if(!completeName || !nickname || !password){
-        res.status(400);
-        return res.send("Missing Fields");
-    }
+        return res.status(400).send("Missing Fields");
+    };
 
     const result = await queryFile(resolve('./src/database/querys/', './insert-users.sql'), 
         [id, completeName, nickname, password]);
@@ -48,23 +47,49 @@ router.post('/auth/login', async (req, res)=>{
 
     if(result.data.rows[0].password != password)
         return res.send("Wrong password");
-    // [END] Confirm that it's fine
+    // [END] 
 
     // [START] Create a JWT token and set it as a cookie
-    const token = jwt.sign({nickname, password}, process.env.PASSWORD_SECRET);
+    const token = jwt.sign({nickname, password, type: "everything"}, process.env.PASSWORD_SECRET);
     res.cookie('token', token, {
         encode: String,
         httpOnly: true,
         secure: true,
         signed: true
     });
+    // [END]
     
     return res.send(token);
 });
 
 router.get('/auth/test', (req, res)=>{
+    const token = req.signedCookies.token;
+
+    const decoded = jwt.verify(token, process.env.PASSWORD_SECRET);
+    console.log(decoded);
+
     return res.send( req.signedCookies );
 })
+
+router.delete('/auth/delete', async (req, res)=>{
+    const { nickname } = req.body;
+
+    const token = req.signedCookies.token;
+    if(!token)
+        return res.send("Not allowed");
+
+    const decoded = jwt.verify(token, process.env.PASSWORD_SECRET);
+    if(decoded.type != "everything")
+        return res.send("invalid token")
+
+    const result = await queryFile(resolve('./src/database/querys/', './delete-user-by-nickname.sql'), [nickname]);
+
+    if(result.sucess == false)
+        return res.send("Error");
+
+    return res.send("User deleted");
+    
+});
 
 export default router;
 
